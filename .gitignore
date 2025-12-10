@@ -1,0 +1,31 @@
+# Backend
+backend/target/
+backend/*.jar
+backend/.mvn/wrapper/maven-wrapper.jar
+
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+
+# Environment
+.env
+.env.local
+*.log
+
+
+# Docker
+docker-compose.override.yml
+
+
+# OS
+.DS_Store
+Thumbs.db
