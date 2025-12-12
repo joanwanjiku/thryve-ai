@@ -4,20 +4,19 @@ import com.thryveai.backend.entity.WorkoutStatus;
 import com.thryveai.backend.entity.WorkoutType;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+
 public class WorkoutDTO {
 
     @Data
     @Builder
+    @Getter @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateWorkoutRequest{
@@ -78,6 +77,24 @@ public class WorkoutDTO {
         private Integer durationMinutes;
         private WorkoutStatus status;
         private int exerciseCount;
+    }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Response {
+        private UUID id;
+        private String name;
+        private String description;
+        private WorkoutType workoutType;
+        private LocalDate scheduledDate;
+        private Integer durationMinutes;
+        private Integer caloriesBurned;
+        private WorkoutStatus status;
+        private String notes;
+        private List<ExerciseDTO.ExerciseResponse> exercises;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 
 

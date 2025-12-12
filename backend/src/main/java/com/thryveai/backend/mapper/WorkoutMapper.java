@@ -1,5 +1,6 @@
 package com.thryveai.backend.mapper;
 
+import com.thryveai.backend.dto.ExerciseDTO;
 import com.thryveai.backend.dto.WorkoutDTO.*;
 import com.thryveai.backend.dto.ExerciseDTO.*;
 
@@ -7,6 +8,7 @@ import com.thryveai.backend.dto.ExerciseDTO.*;
 import com.thryveai.backend.entity.Exercise;
 import com.thryveai.backend.entity.Workout;
 import org.springframework.stereotype.Component;
+//import java.util.stream.Collectors;
 
 @Component
 public class WorkoutMapper {
@@ -75,6 +77,21 @@ public class WorkoutMapper {
                 .notes(savedWorkout.getNotes())
                 .createdAt(savedWorkout.getCreatedAt())
                 .updatedAt(savedWorkout.getUpdatedAt())
+                .build();
+    }
+    public ExerciseDTO.ExerciseResponse toResponse(Exercise exercise) {
+        return ExerciseDTO.ExerciseResponse.builder()
+                .id(exercise.getId())
+                .name(exercise.getName())
+                .exerciseType(exercise.getExerciseType())
+                .sets(exercise.getSets())
+                .reps(exercise.getReps())
+                .weightKg(exercise.getWeightKg())
+                .durationSeconds(exercise.getDurationSeconds())
+                .distanceMeters(exercise.getDistanceMeters())
+                .restSeconds(exercise.getRestSeconds())
+                .orderIndex(exercise.getOrderIndex())
+                .notes(exercise.getNotes())
                 .build();
     }
 }
