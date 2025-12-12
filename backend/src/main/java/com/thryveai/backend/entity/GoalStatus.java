@@ -1,2 +1,7 @@
-package com.thryveai.backend.entity;public class GoalStatus {
+package com.thryveai.backend.entity;
+
+public enum GoalStatus {
+    ACTIVE,
+    COMPLETED,
+    FAILED
 }
