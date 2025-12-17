@@ -16,7 +16,6 @@ public class WorkoutDTO {
 
     @Data
     @Builder
-    @Getter @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateWorkoutRequest{

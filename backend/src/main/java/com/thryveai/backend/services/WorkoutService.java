@@ -1,10 +1,10 @@
 package com.thryveai.backend.services;
 
 import com.thryveai.backend.dto.WorkoutDTO.*;
-import com.thryveai.backend.entity.Exercise;
 import com.thryveai.backend.entity.User;
 import com.thryveai.backend.entity.Workout;
 import com.thryveai.backend.exception.ResourceNotFoundException;
+//import com.thryveai.backend.mapper.WorkoutMapper;
 import com.thryveai.backend.mapper.WorkoutMapper;
 import com.thryveai.backend.repositories.UserRepository;
 import com.thryveai.backend.repositories.WorkoutRepository;
@@ -16,16 +16,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Slf4j
 public class WorkoutService {
 
 
     private final WorkoutRepository workoutRepository;
     private final UserRepository userRepository;
     private final WorkoutMapper workoutMapper;
+
+
 
     public WorkoutResponse createWorkout(UUID userId, CreateWorkoutRequest createWorkout) {
         log.info("Creating workout for user: {}", userId);
@@ -34,14 +36,14 @@ public class WorkoutService {
                 .orElseThrow(() -> new ResourceNotFoundException("User",  userId));
 
         Workout workout = workoutMapper.toEntity(createWorkout);
-        workout.setUser(user);
+//        workout.setUser(user);
 
-        if (createWorkout.getExercises() != null) {
-            createWorkout.getExercises().forEach(ex -> {
-                Exercise exercise = workoutMapper.toEntity(ex);
-                workout.addExercise(exercise);
-            });
-        }
+//        if (createWorkout.getExercises() != null) {
+//            createWorkout.getExercises().forEach(ex -> {
+//                Exercise exercise = workoutMapper.toEntity(ex);
+//                workout.addExercise(exercise);
+//            });
+//        }
 
         Workout savedWorkout = workoutRepository.save(workout);
         return workoutMapper.toResponse(savedWorkout);
@@ -69,7 +71,7 @@ public class WorkoutService {
         Workout workout = workoutRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Workout", id));
 
-        workoutMapper.updateEntity(workout, updateWorkout);
+        workoutMapper.updateEntity(updateWorkout, workout);
         Workout updatedWorkout = workoutRepository.save(workout);
         return workoutMapper.toResponse(updatedWorkout);
     }

@@ -10,10 +10,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ProgressMetricRepository extends JpaRepository {
+public interface ProgressMetricRepository extends JpaRepository<ProgressMetric, UUID> {
 
     Page<ProgressMetric> findByUserId(UUID userId, Pageable pageable);
 
@@ -24,4 +25,9 @@ public interface ProgressMetricRepository extends JpaRepository {
             @Param("userId") UUID userId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
+
+    @Query("SELECT p FROM ProgressMetric p WHERE p.user.id = :userId AND p.metricType = :metricType ORDER BY p.recordedAt DESC LIMIT 1")
+    Optional<ProgressMetric> findLatestByUserIdAndMetricType(
+            @Param("userId") UUID userId,
+            @Param("metricType") MetricType metricType);
 }

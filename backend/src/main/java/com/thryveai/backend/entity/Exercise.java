@@ -18,6 +18,10 @@ public class Exercise extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exercise_type")
+    private ExerciseType exerciseType;
+
     private int sets;
 
     private int reps;
@@ -27,9 +31,6 @@ public class Exercise extends BaseEntity {
 
     @Column(name = "duration_seconds")
     private int durationSeconds;
-
-    @Column(name = "exercise_type")
-    private ExerciseType exerciseType;
 
     @Column(name = "distance_meters")
     private BigDecimal distanceMeters;
