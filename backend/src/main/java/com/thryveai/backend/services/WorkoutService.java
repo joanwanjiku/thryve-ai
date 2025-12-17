@@ -1,10 +1,15 @@
 package com.thryveai.backend.services;
 
 import com.thryveai.backend.dto.WorkoutDTO.*;
+import com.thryveai.backend.dto.ExerciseDTO.*;
+
+import com.thryveai.backend.entity.Exercise;
 import com.thryveai.backend.entity.User;
 import com.thryveai.backend.entity.Workout;
+import com.thryveai.backend.entity.WorkoutStatus;
 import com.thryveai.backend.exception.ResourceNotFoundException;
 //import com.thryveai.backend.mapper.WorkoutMapper;
+import com.thryveai.backend.mapper.ExerciseMapper;
 import com.thryveai.backend.mapper.WorkoutMapper;
 import com.thryveai.backend.repositories.UserRepository;
 import com.thryveai.backend.repositories.WorkoutRepository;
@@ -14,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +33,7 @@ public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final UserRepository userRepository;
     private final WorkoutMapper workoutMapper;
+    private final ExerciseMapper exerciseMapper;
 
 
 
@@ -36,16 +44,22 @@ public class WorkoutService {
                 .orElseThrow(() -> new ResourceNotFoundException("User",  userId));
 
         Workout workout = workoutMapper.toEntity(createWorkout);
-//        workout.setUser(user);
+        workout.setUser(user);
 
-//        if (createWorkout.getExercises() != null) {
-//            createWorkout.getExercises().forEach(ex -> {
-//                Exercise exercise = workoutMapper.toEntity(ex);
-//                workout.addExercise(exercise);
-//            });
-//        }
+        if (createWorkout.getExercises() != null && !createWorkout.getExercises().isEmpty()) {
+            for (int i = 0; i < createWorkout.getExercises().size(); i++) {
+                CreateExerciseRequest exerciseRequest = createWorkout.getExercises().get(i);
+                Exercise exercise = exerciseMapper.toEntity(exerciseRequest);
+                if (exercise.getOrderIndex() == 0) {
+                    exercise.setOrderIndex(i);
+                }
+                workout.addExercise(exercise);
+            }
+
+        }
 
         Workout savedWorkout = workoutRepository.save(workout);
+        log.info("Created workout with id: {}", savedWorkout.getId());
         return workoutMapper.toResponse(savedWorkout);
 
     }
@@ -66,6 +80,14 @@ public class WorkoutService {
         }
         return workoutMapper.toResponse(workout);
     }
+    @Transactional(readOnly = true)
+    public List<WorkoutResponse> getWorkoutsByDateRange(UUID userId, LocalDate startDate, LocalDate endDate) {
+        log.debug("Fetching workouts for user {} between {} and {}", userId, startDate, endDate);
+        return workoutRepository.findByUserIdAndScheduledDateBetween(userId, startDate, endDate)
+                .stream()
+                .map(workoutMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 
     public WorkoutResponse updateWorkout(UUID id, UpdateWorkoutRequest updateWorkout) {
         Workout workout = workoutRepository.findById(id)
@@ -83,4 +105,22 @@ public class WorkoutService {
         workoutRepository.deleteById(id);
     }
 
+    public WorkoutResponse completeWorkout(UUID id, Integer caloriesBurned) {
+        log.info("Completing workout: {}", id);
+        Workout workout = workoutRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Workout", id));
+
+        workout.setStatus(WorkoutStatus.COMPLETED);
+        if (caloriesBurned != null) {
+            workout.setCaloriesBurned(caloriesBurned);
+        }
+//        TODO: Add logic to calculate caloriesBurned
+        Workout updatedWorkout = workoutRepository.save(workout);
+        log.info("Completed workout: {}", id);
+        return workoutMapper.toResponse(updatedWorkout);
+    }
+
+    public long countCompletedWorkouts(UUID userId) {
+        return workoutRepository.countByUserIdAndStatus(userId, WorkoutStatus.COMPLETED);
+    }
 }

@@ -51,8 +51,14 @@ public class Workout extends BaseEntity {
 
     public void addExercise(Exercise exercise) {
         exercises.add(exercise);
+        exercise.setWorkout(this);
     }
     public void removeExercise(Exercise exercise) {
         exercises.remove(exercise);
+        exercise.setWorkout(null);
+    }
+    public void clearExercises() {
+        exercises.forEach(e -> e.setWorkout(null));
+        exercises.clear();
     }
 }

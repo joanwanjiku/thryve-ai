@@ -2,6 +2,8 @@ package com.thryveai.backend.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.UUID;
+
 import lombok.*;
 
 @Entity
@@ -9,7 +11,10 @@ import lombok.*;
 @Table(name = "exercises")
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
-public class Exercise extends BaseEntity {
+public class Exercise {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workout_id", nullable = false)

@@ -1,5 +1,6 @@
 package com.thryveai.backend.dto;
 
+import com.thryveai.backend.entity.Exercise;
 import com.thryveai.backend.entity.ExerciseType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -9,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 import java.math.BigDecimal;
 
