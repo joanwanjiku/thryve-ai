@@ -34,9 +34,8 @@ public class WorkoutDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateWorkoutRequest{
-        @NotBlank(message = "Workout name is required")
-        @Size(min = 3, max = 100, message = "Workout name must be between 3 and 100 characters")
+    public static class UpdateWorkoutRequest {
+        @Size(max = 100, message = "Name cannot exceed 100 characters")
         private String name;
         private String description;
         private WorkoutType workoutType;
@@ -45,7 +44,6 @@ public class WorkoutDTO {
         private Integer caloriesBurned;
         private WorkoutStatus status;
         private String notes;
-        private List<ExerciseDTO.CreateExerciseRequest> exercises;
     }
 
     @Data @Builder @NoArgsConstructor @AllArgsConstructor

@@ -7,6 +7,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 
 public interface WorkoutMapper {
+    @Mapping(target = "exercises", ignore = true)
     Workout toEntity(WorkoutDTO.CreateWorkoutRequest dto);
 
     WorkoutDTO.WorkoutResponse toResponse(Workout workout);
