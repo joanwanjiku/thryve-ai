@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thryveai.backend.dto.ExerciseDTO;
 import com.thryveai.backend.dto.WorkoutDTO;
 import com.thryveai.backend.entity.ExerciseType;
-import com.thryveai.backend.entity.User;
+import com.thryveai.backend.entity.*;
 import com.thryveai.backend.entity.WorkoutType;
 import com.thryveai.backend.repositories.UserRepository;
 import com.thryveai.backend.repositories.WorkoutRepository;
@@ -123,6 +123,131 @@ class WorkoutControllerTest {
                 .andExpect(jsonPath("$.data.name").exists());
 
     }
+
+    @Test
+    @DisplayName("GET /api/v1/workouts - Should return paginated workouts")
+    public void getUserWorkouts_ShouldReturnPaginatedWorkouts() throws Exception {
+        workoutRepository.save(Workout.builder()
+                .user(testUser)
+                .name("Workout 1")
+                .workoutType(WorkoutType.CROSSFIT)
+                .scheduledDate(LocalDate.now())
+                .durationMinutes(60)
+                .build());
+        workoutRepository.save(Workout.builder()
+                .user(testUser)
+                .name("Workout 2")
+                .workoutType(WorkoutType.FLEXIBILITY)
+                .scheduledDate(LocalDate.now())
+                .durationMinutes(60)
+                .build());
+        mockMvc.perform(get("/api/v1/workouts")
+                .header("X-User-Id", testUser.getId())
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.content", hasSize(2)));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/workouts/{id} - Should return workout by ID")
+    public void getWorkoutById_ShouldReturnWorkout() throws Exception {
+        Workout workout = workoutRepository.save(Workout.builder()
+                .user(testUser)
+                .name("Test Workout")
+                .workoutType(WorkoutType.STRENGTH)
+                .scheduledDate(LocalDate.now())
+                .build());
+
+        mockMvc.perform(get("/api/v1/workouts/{id}", workout.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.id").value(workout.getId().toString()))
+                .andExpect(jsonPath("$.data.name").value("Test Workout"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/workouts/{id} - Should return 404 for non-existent workout")
+    public void getWorkoutById_WithInvalidId_ShouldReturn404() throws Exception {
+        mockMvc.perform(get("/api/v1/workouts/{id}", UUID.randomUUID()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.statusCode").value(404));
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/workouts/{id} - Should update workout")
+    public void updateWorkout_ShouldReturnUpdatedWorkout() throws Exception {
+        Workout workout = workoutRepository.save(Workout.builder()
+                .user(testUser)
+                .name("Orginal Name")
+                .workoutType(WorkoutType.CARDIO)
+                .build());
+
+        WorkoutDTO.UpdateWorkoutRequest request = WorkoutDTO.UpdateWorkoutRequest.builder()
+                .name("Updated Name")
+                .status(WorkoutStatus.COMPLETED)
+                .caloriesBurned(300)
+                .build();
+
+        mockMvc.perform(put("/api/v1/workouts/{id}", workout.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value("Updated Name"))
+                .andExpect(jsonPath("$.data.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.data.caloriesBurned").value(300));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/workouts/{id} - Should delete workout")
+    public void deleteWorkout_ShouldReturnNoContent() throws Exception {
+        Workout workout = workoutRepository.save(Workout.builder()
+                .user(testUser)
+                .name("To Delete")
+                .build());
+
+        mockMvc.perform(delete("/api/v1/workouts/{id}", workout.getId()))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/v1/workouts/{id}", workout.getId()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/workouts/{id}/complete - Should mark workout as complete")
+    public void completeWorkout_ShouldUpdateStatus() throws Exception {
+        Workout workout = workoutRepository.save(Workout.builder()
+                .user(testUser)
+                .name("To Complete")
+                .status(WorkoutStatus.PLANNED)
+                .build());
+
+        mockMvc.perform(post("/api/v1/workouts/{id}/complete", workout.getId())
+                        .param("caloriesBurned", "250"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.data.caloriesBurned").value(250));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/stats/completed - should return completed workouts")
+    public void getCompletedWorkoutsCount_ShouldReturnCount() throws Exception {
+        Workout workout = workoutRepository.save(Workout.builder()
+                .user(testUser)
+                .name("To Complete")
+                .status(WorkoutStatus.COMPLETED)
+                .build());
+
+        mockMvc.perform(get("/api/v1/workouts/stats/completed")
+                    .header("X-User-Id", testUser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(1));
+
+    }
+
+
 
 
 }
