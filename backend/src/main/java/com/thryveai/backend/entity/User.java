@@ -31,6 +31,10 @@ public class User extends BaseEntity {
     @Column(name = "profile_picture_url")
     private String profilePictureUrl;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private String role = "USER";
+
     @Column(name = "height_cm")
     private BigDecimal heightCm;
 
