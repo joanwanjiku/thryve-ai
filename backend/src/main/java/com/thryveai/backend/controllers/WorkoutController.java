@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -36,9 +37,11 @@ public class WorkoutController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<WorkoutResponse>> createWorkout(
-            @RequestHeader("X-User-Id") UUID userId,
+//          @RequestHeader ("X-User-Id") UUID userId,
+            Authentication authentication,
             @Valid @RequestBody CreateWorkoutRequest request
     ) {
+        UUID userId = (UUID) authentication.getPrincipal();
         WorkoutResponse response = workoutService.createWorkout(userId, request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -47,12 +50,15 @@ public class WorkoutController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<WorkoutResponse>>> getUserWorkouts(
-            @RequestHeader("X-User-Id") UUID userId,
+//          @RequestHeader ("X-User-Id") UUID userId,
+            Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "scheduledDate") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDir
             ){
+        UUID userId = (UUID) authentication.getPrincipal();
+
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<WorkoutResponse> workouts = workoutService.getUserWorkouts(userId, pageable);
@@ -69,10 +75,12 @@ public class WorkoutController {
 
     @GetMapping("/range")
     public ResponseEntity<ApiResponse<List<WorkoutResponse>>> getWorkoutsByDateRange(
-            @RequestHeader("X-User-Id") UUID userId,
+//          @RequestHeader ("X-User-Id") UUID userId,
+            Authentication authentication,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
+        UUID userId = (UUID) authentication.getPrincipal();
         List<WorkoutResponse> workouts = workoutService.getWorkoutsByDateRange(userId, startDate, endDate);
         return ResponseEntity.ok(ApiResponse.success(workouts));
     }
@@ -100,7 +108,9 @@ public class WorkoutController {
 
     @GetMapping("/stats/completed")
     public ResponseEntity<ApiResponse<Long>> getCompletedWorkoutsCount(
-            @RequestHeader("X-User-Id") UUID userId) {
+//          @RequestHeader ("X-User-Id") UUID userId,
+            Authentication authentication)  {
+        UUID userId = (UUID) authentication.getPrincipal();
         long count = workoutService.countCompletedWorkouts(userId);
         return ResponseEntity.ok(ApiResponse.success(count));
     }

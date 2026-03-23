@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+* Wraps Google's OAuth2User to carry the internal database UUID and email
+* through the OAuth2 authentication flow so OAuthSuccessHandler can issue a JWT
+**/
+
 public class CustomOAuth2User implements OAuth2User {
 
     private final OAuth2User delegate;

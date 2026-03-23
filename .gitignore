@@ -2,7 +2,7 @@
 backend/target/
 backend/*.jar
 backend/.mvn/wrapper/maven-wrapper.jar
-
+backend/src/main/resources/application.properties
 
 # Frontend
 frontend/node_modules/

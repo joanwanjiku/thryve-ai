@@ -9,7 +9,8 @@ public class UserDTO {
 
     @Data
     @Builder
-    @RequiredArgsConstructor
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CreateUserRequest{
         private String googleId;
         private String email;

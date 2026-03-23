@@ -15,6 +15,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+* Intercepts the Google OAuth2 user info response
+* Finds an existing User by googleId or email, or creates a new one
+* Returns a CustomOAuth2User carrying the internal UUID for jwt generation
+**/
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
