@@ -145,6 +145,13 @@
 			<version>0.12.6</version>
 			<scope>runtime</scope>
 		</dependency>
+<!--		&lt;!&ndash; openApi &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.springdoc</groupId>-->
+<!--			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
+<!--			<version>2.5.0</version>-->
+<!--		</dependency>-->
+
 
 
 
@@ -172,6 +179,86 @@
 							<version>1.5.5.Final</version>
 						</path>
 					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+			</plugin>
+			<!-- ==========================================
+     2. JaCoCo — code coverage reporting
+     ========================================== -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<!-- Instrument classes before tests run -->
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<!-- Generate coverage report after tests -->
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<!-- Enforce minimum coverage threshold -->
+					<execution>
+						<id>check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<!-- Set to true once coverage exceeds 50% consistently -->
+							<haltOnFailure>false</haltOnFailure>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.50</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+							<!-- Exclude Lombok/MapStruct generated code from coverage checks -->
+							<excludes>
+								<exclude>**/dto/**</exclude>
+								<exclude>**/entity/**</exclude>
+								<exclude>**/mapper/**</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- ==========================================
+                 3. OWASP Dependency Check — vulnerability scanning
+                 Can also be run standalone: mvn org.owasp:dependency-check-maven:check
+                 ========================================== -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>10.0.4</version>
+				<configuration>
+					<!-- Only fail the build on critical vulnerabilities (CVSS >= 9) -->
+					<failBuildOnCVSS>9</failBuildOnCVSS>
+					<formats>
+						<format>HTML</format>
+						<format>JSON</format>
+					</formats>
+					<!-- NVD API key speeds up downloads significantly (optional, set via -DnvdApiKey=...) -->
+					<nvdApiKey>1d505019-241b-42ee-bb2f-1849fde438b2</nvdApiKey>
 				</configuration>
 			</plugin>
 		</plugins>
