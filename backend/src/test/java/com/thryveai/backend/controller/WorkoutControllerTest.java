@@ -1,6 +1,7 @@
 package com.thryveai.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thryveai.backend.config.TestSecurityConfig;
 import com.thryveai.backend.dto.ExerciseDTO;
 import com.thryveai.backend.dto.WorkoutDTO;
 import com.thryveai.backend.entity.ExerciseType;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -33,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
+@Import(TestSecurityConfig.class)
 class WorkoutControllerTest {
 
     @Container
