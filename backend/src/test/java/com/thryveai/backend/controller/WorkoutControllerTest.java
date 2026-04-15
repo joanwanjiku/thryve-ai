@@ -1,7 +1,6 @@
 package com.thryveai.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thryveai.backend.config.TestSecurityConfig;
 import com.thryveai.backend.dto.ExerciseDTO;
 import com.thryveai.backend.dto.WorkoutDTO;
 import com.thryveai.backend.entity.ExerciseType;
@@ -9,13 +8,13 @@ import com.thryveai.backend.entity.*;
 import com.thryveai.backend.entity.WorkoutType;
 import com.thryveai.backend.repositories.UserRepository;
 import com.thryveai.backend.repositories.WorkoutRepository;
+import com.thryveai.backend.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -35,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
-@Import(TestSecurityConfig.class)
 class WorkoutControllerTest {
 
     @Container
@@ -58,6 +56,10 @@ class WorkoutControllerTest {
     private UserRepository userRepository;
     @Autowired
     private WorkoutRepository workoutRepository;
+    @Autowired
+    private JwtService jwtService;
+
+    private String authHeader;
 
     private User testUser;
 
@@ -67,11 +69,11 @@ class WorkoutControllerTest {
         userRepository.deleteAll();
 
         testUser = userRepository.save(User.builder()
-//                .id(UUID.randomUUID())
                 .googleId("ggdued212")
                 .email("testuser@gmail.com")
                 .displayName("testuser")
                 .build());
+        authHeader = "Bearer " + jwtService.generateToken(testUser.getId(), testUser.getEmail());
     }
 
     @Test
@@ -96,7 +98,7 @@ class WorkoutControllerTest {
                 .build();
         mockMvc.perform(
                 post("/api/v1/workouts")
-                    .header("X-User-Id", testUser.getId())
+                    .header("Authorization", authHeader)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request))
                 )
@@ -117,7 +119,7 @@ class WorkoutControllerTest {
                 .name("")
                 .build();
         mockMvc.perform(post("/api/v1/workouts")
-                    .header("X-User-Id", testUser.getId())
+                        .header("Authorization", authHeader)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)
                 ))
@@ -145,7 +147,7 @@ class WorkoutControllerTest {
                 .durationMinutes(60)
                 .build());
         mockMvc.perform(get("/api/v1/workouts")
-                .header("X-User-Id", testUser.getId())
+                .header("Authorization", authHeader)
                 .param("page", "0")
                 .param("size", "10"))
                 .andExpect(status().isOk())
@@ -163,7 +165,8 @@ class WorkoutControllerTest {
                 .scheduledDate(LocalDate.now())
                 .build());
 
-        mockMvc.perform(get("/api/v1/workouts/{id}", workout.getId()))
+        mockMvc.perform(get("/api/v1/workouts/{id}", workout.getId())
+                        .header("Authorization", authHeader))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(workout.getId().toString()))
@@ -173,7 +176,8 @@ class WorkoutControllerTest {
     @Test
     @DisplayName("GET /api/v1/workouts/{id} - Should return 404 for non-existent workout")
     public void getWorkoutById_WithInvalidId_ShouldReturn404() throws Exception {
-        mockMvc.perform(get("/api/v1/workouts/{id}", UUID.randomUUID()))
+        mockMvc.perform(get("/api/v1/workouts/{id}", UUID.randomUUID())
+                        .header("Authorization", authHeader))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.statusCode").value(404));
@@ -195,6 +199,7 @@ class WorkoutControllerTest {
                 .build();
 
         mockMvc.perform(put("/api/v1/workouts/{id}", workout.getId())
+                        .header("Authorization", authHeader)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -211,10 +216,12 @@ class WorkoutControllerTest {
                 .name("To Delete")
                 .build());
 
-        mockMvc.perform(delete("/api/v1/workouts/{id}", workout.getId()))
+        mockMvc.perform(delete("/api/v1/workouts/{id}", workout.getId())
+                        .header("Authorization", authHeader))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/v1/workouts/{id}", workout.getId()))
+        mockMvc.perform(get("/api/v1/workouts/{id}", workout.getId())
+                        .header("Authorization", authHeader))
                 .andExpect(status().isNotFound());
     }
 
@@ -228,6 +235,7 @@ class WorkoutControllerTest {
                 .build());
 
         mockMvc.perform(post("/api/v1/workouts/{id}/complete", workout.getId())
+                        .header("Authorization", authHeader)
                         .param("caloriesBurned", "250"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.status").value("COMPLETED"))
@@ -244,7 +252,7 @@ class WorkoutControllerTest {
                 .build());
 
         mockMvc.perform(get("/api/v1/workouts/stats/completed")
-                    .header("X-User-Id", testUser.getId()))
+                        .header("Authorization", authHeader))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value(1));
 
