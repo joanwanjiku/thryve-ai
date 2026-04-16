@@ -138,7 +138,7 @@ jobs:
          run: ./mvnw compile test-compile --batch-mode --no-transfer-progress
 
       - name: Test SonarQube connectivity
-        run: curl -v https://sonar.jokan.duckdns.org
+        run: curl -v http://192.168.0.5:9100
 
       - name: Run SonarCloud analysis
         env:
