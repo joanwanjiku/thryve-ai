@@ -105,6 +105,7 @@ jobs:
   # ──────────────────────────────────────────────
   # Job 3: SonarCloud Analysis
   # ──────────────────────────────────────────────
+  
   sonar-analysis:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
@@ -136,16 +137,19 @@ jobs:
       -  name: Compile sources for Sonar
          run: ./mvnw compile test-compile --batch-mode --no-transfer-progress
 
+      - name: Test SonarQube connectivity
+        run: curl -f -s -o /dev/null -w "%{http_code}" "${{ secrets.SONAR_HOST_URL }}"
+
       - name: Run SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
         run: |
           ./mvnw sonar:sonar \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.organization=joanwanjiku \
-            -Dsonar.projectKey=joanwanjiku_thryve-ai \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             --batch-mode --no-transfer-progress
 
   # ──────────────────────────────────────────────
