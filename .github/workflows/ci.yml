@@ -138,12 +138,15 @@ jobs:
          run: ./mvnw compile test-compile --batch-mode --no-transfer-progress
 
       - name: Test SonarQube connectivity
-        run: curl -v http://192.168.0.5:9100
+        run: curl -v https://b4d0-69-140-10-140.ngrok-free.app/
 
       - name: Run SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_SCANNER_OPTS: >
+            -Dhttp.proxyUser=${{ secrets.NGROK_USER }}
+            -Dhttp.proxyPassword=${{ secrets.NGROK_PASS }}
         run: |
           ./mvnw sonar:sonar \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
