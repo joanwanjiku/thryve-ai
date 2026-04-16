@@ -105,6 +105,7 @@ jobs:
   # ──────────────────────────────────────────────
   # Job 3: SonarCloud Analysis
   # ──────────────────────────────────────────────
+  
   sonar-analysis:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
@@ -136,6 +137,9 @@ jobs:
       -  name: Compile sources for Sonar
          run: ./mvnw compile test-compile --batch-mode --no-transfer-progress
 
+      - name: Test SonarQube connectivity
+        run: curl -v https://sonar.jokan.duckdns.org
+
       - name: Run SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -144,8 +148,6 @@ jobs:
           ./mvnw sonar:sonar \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}\
-            -Dsonar.organization=joanwanjiku \
-            -Dsonar.projectKey=joanwanjiku_thryve-ai \
             --batch-mode --no-transfer-progress
 
   # ──────────────────────────────────────────────
