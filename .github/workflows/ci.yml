@@ -138,19 +138,29 @@ jobs:
          run: ./mvnw compile test-compile --batch-mode --no-transfer-progress
 
       - name: Test SonarQube connectivity
-        run: curl -v https://b4d0-69-140-10-140.ngrok-free.app/
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          NGROK_USER: ${{ secrets.NGROK_USER }}
+          NGROK_PASS: ${{ secrets.NGROK_PASS }}
+        run: curl -f -v -u "$NGROK_USER:$NGROK_PASS" "$SONAR_HOST_URL"
 
       - name: Run SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # SONAR_SCANNER_OPTS: >
-          #   -Dhttp.proxyUser=${{ secrets.NGROK_USER }}
-          #   -Dhttp.proxyPassword=${{ secrets.NGROK_PASS }}
+          NGROK_USER: ${{ secrets.NGROK_USER }}
+          NGROK_PASS: ${{ secrets.NGROK_PASS }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
         run: |
+          HOST="${SONAR_HOST_URL%/}"
+          PROTO="${HOST%%://*}"
+          REST="${HOST#*://}"
+          AUTHED_URL="${PROTO}://${NGROK_USER}:${NGROK_PASS}@${REST}" 
+
           ./mvnw sonar:sonar \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login="${SONAR_TOKEN}" \
+            -Dsonar.host.url="${AUTHED_URL}" \
             --batch-mode --no-transfer-progress
 
   # ──────────────────────────────────────────────
