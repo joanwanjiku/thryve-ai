@@ -140,27 +140,18 @@ jobs:
       - name: Test SonarQube connectivity
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          NGROK_USER: ${{ secrets.NGROK_USER }}
-          NGROK_PASS: ${{ secrets.NGROK_PASS }}
-        run: curl -f -v -u "$NGROK_USER:$NGROK_PASS" "$SONAR_HOST_URL"
+        run: curl -f -v -u  "$SONAR_HOST_URL"
 
       - name: Run SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NGROK_USER: ${{ secrets.NGROK_USER }}
-          NGROK_PASS: ${{ secrets.NGROK_PASS }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
         run: |
-          HOST="${SONAR_HOST_URL%/}"
-          PROTO="${HOST%%://*}"
-          REST="${HOST#*://}"
-          AUTHED_URL="${PROTO}://${NGROK_USER}:${NGROK_PASS}@${REST}" 
-
           ./mvnw sonar:sonar \
             -Dsonar.login="${SONAR_TOKEN}" \
-            -Dsonar.host.url="${AUTHED_URL}" \
+            -Dsonar.host.url="${SONAR_HOST_URL}" \
             --batch-mode --no-transfer-progress
 
   # ──────────────────────────────────────────────
