@@ -144,13 +144,13 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_SCANNER_OPTS: >
-            -Dhttp.proxyUser=${{ secrets.NGROK_USER }}
-            -Dhttp.proxyPassword=${{ secrets.NGROK_PASS }}
+          # SONAR_SCANNER_OPTS: >
+          #   -Dhttp.proxyUser=${{ secrets.NGROK_USER }}
+          #   -Dhttp.proxyPassword=${{ secrets.NGROK_PASS }}
         run: |
           ./mvnw sonar:sonar \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}\
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             --batch-mode --no-transfer-progress
 
   # ──────────────────────────────────────────────
