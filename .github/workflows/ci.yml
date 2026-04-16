@@ -133,6 +133,8 @@ jobs:
 
       - name: Make Maven wrapper executable
         run: chmod +x ./mvnw
+      -  name: Compile sources for Sonar
+         run: ./mvnw compile test-compile --batch-mode --no-transfer-progress
 
       - name: Run SonarCloud analysis
         env:
@@ -141,6 +143,9 @@ jobs:
         run: |
           ./mvnw sonar:sonar \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.organization=joanwanjiku \
+            -Dsonar.projectKey=joanwanjiku_thryve-ai \
             --batch-mode --no-transfer-progress
 
   # ──────────────────────────────────────────────
