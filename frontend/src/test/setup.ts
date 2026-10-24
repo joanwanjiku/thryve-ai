@@ -7,6 +7,13 @@ import { server } from './server'
 // MSW's Node interceptor doesn't see jsdom's XMLHttpRequest; route axios through fetch instead.
 api.defaults.adapter = 'fetch'
 
+// jsdom has no ResizeObserver; Recharts' ResponsiveContainer needs one.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 afterEach(() => {
   server.resetHandlers()

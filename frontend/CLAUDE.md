@@ -54,7 +54,7 @@ The dashboard uses a sidebar layout with nested routes.
 - **Home (public):** hero (headline, image, "Get started" → login), why fitness matters (benefit cards: heart health, strength, mental health, longevity), how Thryve helps (track workouts, log body metrics, see progress), training types strip (strength, cardio, flexibility), final CTA, footer. Palette: emerald + charcoal with an orange CTA accent. Royalty-free (Unsplash/Pexels) images downloaded into `src/assets`.
 - **Overview:** completed-workout stats (`/api/v1/workouts/stats/completed`), upcoming workouts (`/api/v1/workouts/range`), latest value for each metric type (`/api/v1/progress/latest/{type}`).
 - **Workouts:** create, edit, delete, mark complete (`POST /{id}/complete`). Exercises can only be added in the create form; they are read-only afterwards (`UpdateWorkoutRequest` has no exercises). Lists paginate with a "Load more" button (`useInfiniteQuery`).
-- **Progress (health metrics):** line chart per metric type over time plus a table. Create and delete only (no backend update endpoint). Units are fixed per metric type in the frontend: WEIGHT/MUSCLE_MASS → kg, BODY_FAT → %, BMI → none, WAIST/CHEST/ARMS/LEGS → cm.
+- **Progress (health metrics):** metric tabs (selected metric in `?metric=`), line chart per metric type over time plus a table, both fed by `/api/v1/progress/type/{type}` (full list, newest first — no pagination). Create and delete only (no backend update endpoint). Units are fixed per metric type in the frontend: WEIGHT/MUSCLE_MASS → kg, BODY_FAT → %, BMI → none, WAIST/CHEST/ARMS/LEGS → cm.
 - **Goals:** placeholder until the backend exposes a goals API.
 - All deletes require a confirmation dialog (backend deletes are permanent).
 
