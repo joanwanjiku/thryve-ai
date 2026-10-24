@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* Brand palette: emerald (health) + charcoal (strength), orange for CTAs. */
+@theme {
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-charcoal-700: #374151;
+  --color-charcoal-800: #1f2937;
+  --color-charcoal-900: #111827;
+  --color-accent-500: #f97316;
+  --color-accent-600: #ea580c;
+}
+
+body {
+  @apply bg-white text-charcoal-900 antialiased;
+}
